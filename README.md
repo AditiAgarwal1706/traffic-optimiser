@@ -1,288 +1,238 @@
-# Bangalore Traffic Congestion Modeling (Graph + ML + Optimization)
+# 🚦 Traffic Optimiser: Graph-Based Urban Congestion Modeling & Intelligent Traffic Routing
 
-A graph-based urban traffic analysis pipeline for Bangalore that combines:
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Framework: OSMnx & NetworkX](https://img.shields.io/badge/Framework-OSMnx%20%7C%20NetworkX-green.svg)](https://osmnx.readthedocs.io/)
+[![ML: XGBoost & Scikit--Learn](https://img.shields.io/badge/ML-XGBoost%20%7C%20Scikit--Learn-orange.svg)](https://xgboost.readthedocs.io/)
+[![Visualization: Folium & Leaflet](https://img.shields.io/badge/Visualization-Folium%20%7C%20Leaflet-red.svg)](https://python-visualization.github.io/folium/)
 
-- **Real road network topology** from OpenStreetMap (via OSMnx)
-- **Real civic/traffic datasets** (BTP accidents, violations, enforcement, and ward-level KML)
-- **Proxy features** (area-level traffic density mapped onto roads)
-- **Clearly-labelled synthetic components** where real measurements are not available
-- **Weakly-supervised ML** to create a relative congestion score per road segment
-- **Decision-support analyses**: bottlenecks, hotspots, emergency routing, and city-level optimization
+A comprehensive, end-to-end urban traffic analysis, modeling, and optimization platform focused on complex metropolitan road networks (exemplified on Bengaluru, India).
 
-This project produces **GraphML artifacts**, **CSVs**, **reports**, and **interactive Folium/Leaflet maps** in the `output/` folder.
-
----
-
-## Key capabilities
-
-- **Road network graph build** for Bangalore (OSM → GraphML + CSVs + map)
-- **Graph enrichment** by mapping external spatial datasets onto nearest road edges
-- **Feature engineering** into interpretable per-edge scores (accidents, violations, density, etc.)
-- **Synthetic signal delay estimation** (topology-based) to approximate intersection delay effects
-- **ML model training** using *pseudo-labels* (weak supervision) and applying predictions back onto the graph
-- **Bottleneck + hotspot detection**, plus simple “what-if” intervention simulation
-- **Emergency routing comparison** (distance vs congestion vs emergency-priority)
-- **City-wide congestion optimization** (multiple algorithms) with before/after comparison maps
-- **Optional: compact map generation** for very large Folium HTML files (browser-friendly rendering)
+The system integrates **OpenStreetMap road topology**, **civic traffic datasets**, **topology-aware signal delay intelligence**, **weakly-supervised machine learning**, and **multi-objective graph optimization algorithms** to identify bottlenecks, dynamically re-route emergency vehicles, simulate urban interventions, and serve interactive visual analytics.
 
 ---
 
-## Data transparency (important)
+## 📌 Executive Summary & Architecture
 
-This repository intentionally labels each stage’s data sources:
+```mermaid
+flowchart TD
+    subgraph DataIngestion ["1. Data Ingestion & Spatial Mapping"]
+        OSM["OpenStreetMap Topology (OSMnx)"]
+        Civic["Civic Datasets (BTP Accidents & Violations)"]
+        Spatial["Ward Boundaries (KML) & Area Density"]
+    end
 
-- **Real data**
-  - OSM road network topology (nodes/edges, road type tags, geometry)
-  - Bengaluru Traffic Police (BTP) / Karnataka datasets included in `data/` (accidents, violations, enforcement)
-  - Ward/polling boundaries and ward-level fields from the provided KML (if present)
+    subgraph GraphEngine ["2. Graph Construction & Enrichment"]
+        GraphBuild["build_graph.py<br/>(GraphML Generation)"]
+        SpatialMap["map_data_to_graph.py<br/>(Edge Nearest-Neighbor Projection)"]
+        FeatureEng["feature_engineering.py<br/>(Normalisation & Score Weighting)"]
+        SignalIntel["signal_intelligence.py<br/>(Synthetic Intersection Delay)"]
+    end
 
-- **Proxy / estimated data**
-  - `traffic_density`: derived from `data/Banglore_traffic_Dataset.csv` (area-level), mapped to roads via fuzzy matching
+    subgraph MLEngine ["3. Machine Learning & Predictive Analytics"]
+        PseudoLabels["Weak Supervision & Pseudo-Labeling"]
+        XGB["train_congestion_model.py<br/>(XGBoost / Random Forest)"]
+        Predict["predict_congestion.py<br/>(Graph Edge Scoring)"]
+    end
 
-- **Synthetic / assumed data**
-  - Signal / intersection delays are estimated from topology (node degree, centrality, local density)
-  - Temporal and weather-like ML features are *synthetic* (used only to train a model in the absence of real edge-level time series)
+    subgraph OptimizationEngine ["4. Decision Support & Optimization"]
+        Bottleneck["bottleneck_analysis.py<br/>(Hotspot & Intervention Simulation)"]
+        Emergency["emergency_routing.py<br/>(Priority Rerouting)"]
+        UrbanOpt["urban_optimization.py & area_optimization.py<br/>(City-Wide Corridor Optimization)"]
+    end
 
-- **Weak supervision / pseudo-labels**
-  - The ML target `congestion_score` is a *formula-derived pseudo-label*, not a measured ground truth
-  - As a result, outputs should be interpreted as **relative ranking / decision-support indicators** rather than absolute congestion measurements
+    subgraph Delivery ["5. Interactive Delivery Layer"]
+        Dashboard["Flask + Leaflet Dashboard (dashboard/app.py)"]
+        Maps["Interactive Maps & Reports (output/maps/*.html)"]
+        CompactEngine["compact_folium_polylines.py<br/>(Polylines JSON Chunking)"]
+    end
+
+    OSM --> GraphBuild
+    Civic --> SpatialMap
+    Spatial --> SpatialMap
+    GraphBuild --> SpatialMap --> FeatureEng --> SignalIntel
+    SignalIntel --> PseudoLabels --> XGB --> Predict
+    Predict --> Bottleneck & Emergency & UrbanOpt
+    Bottleneck & Emergency & UrbanOpt --> CompactEngine --> Maps & Dashboard
+```
 
 ---
 
-## Repository structure
+## ✨ Key Capabilities
 
-- `src/` — all pipeline modules (each script can run standalone)
-- `data/` — input datasets (CSVs + KML)
-- `output/` — generated artifacts (graphs, maps, models, reports)
-- `cache/` — intermediate caches (if used by scripts)
+| Module | Functionality | Primary Outputs |
+| :--- | :--- | :--- |
+| 🗺️ **Graph Construction** | Extracts road network topology (nodes, edges, speed limits, lane counts) from OpenStreetMap. | `bangalore_graph.graphml`, `road_network.html` |
+| 📊 **Spatial Enrichment** | Projects external geo-tagged civic datasets (accidents, citations, enforcement) onto nearest network edges. | `bangalore_graph_enriched.graphml` |
+| 🚥 **Signal Intelligence** | Estimates junction delays using topological node degree, centrality metrics, and local road density. | `bangalore_signalized.graphml` |
+| 🤖 **Weakly-Supervised ML** | Trains predictive ensemble models (XGBoost/Random Forest) using pseudo-labels for edge-level congestion scoring. | `congestion_model.pkl`, `model_evaluation.txt` |
+| 🚨 **Emergency Routing** | Computes optimal priority corridors for emergency vehicles by balancing distance, travel time, and congestion. | `emergency_route.html`, `emergency_analysis.csv` |
+| 🔍 **Bottleneck & Hotspot Analysis** | Identifies critical gridlocks, assesses network resilience, and evaluates scenario interventions. | `hotspots.csv`, `bottlenecks.csv`, `intervention_map.html` |
+| ⚡ **City-Wide Optimization** | Simulates corridor rerouting, adaptive traffic signal timing, and demand management strategies. | `optimization_comparison.html`, `urban_optimization_report.txt` |
+| 💻 **Interactive Dashboard** | Flask web app providing interactive side-by-side comparison of baseline vs. optimized routes. | `http://localhost:5050` |
 
 ---
 
-## Dashboard (interactive route comparison)
+## 🔍 Data Source & Modeling Transparency
 
-This repo includes a small Flask + Leaflet dashboard in `dashboard/` for comparing **before** vs **after** routing.
+> [!IMPORTANT]
+> To maintain academic and practical rigor, every dataset and feature used in this repository is explicitly classified by its provenance:
 
-- It loads its data from **committed** CSV artifacts under `output/`.
-- If you want to regenerate outputs, run the pipeline (see below).
+* **Real Measured Data**:
+  * **Road Network Topology**: Downloaded directly from OpenStreetMap (`OSMnx`) including edge geometry, length, highway classifications, and intersection nodes.
+  * **Civic Datasets**: Bengaluru Traffic Police (BTP) incident records, violation stats, and ward boundary geometry (`KML`).
+* **Proxy Data**:
+  * **Traffic Density**: Aggregated area-level density estimates derived from `Banglore_traffic_Dataset.csv` and projected to road segments via fuzzy spatial matching.
+* **Topology-Derived Synthetic Estimations**:
+  * **Intersection Delay**: Calculated from topological features (node degree, betweenness centrality, and incoming edge capacity).
+  * **Temporal & Weather Features**: Synthetic feature distributions used to facilitate model training in the absence of continuous IoT sensor streams.
+* **Weak Supervision (Pseudo-Labeling)**:
+  * The target label `congestion_score` is generated using a formula-derived pseudo-label. Output metrics indicate **relative congestion risk and prioritization rankings** rather than physical vehicle counts.
 
-Run from the project root:
+---
 
+## 📁 Repository Structure
+
+```
+traffic-optimiser/
+├── dashboard/                  # Interactive Flask + Leaflet Web Application
+│   ├── app.py                  # Web server & API routing
+│   └── templates/
+│       └── index.html          # Web UI layout & map canvas
+├── data/                       # Civic datasets (CSV & KML input files)
+├── output/                     # Generated pipeline outputs & artifacts
+│   ├── graphs/                 # GraphML representations (.graphml)
+│   ├── maps/                   # Interactive Leaflet HTML maps
+│   ├── models/                 # Serialized Machine Learning models (.pkl)
+│   └── reports/                # Analytical reports, summary CSVs & charts
+├── scripts/                    # Helper shell scripts
+│   ├── cleanup_project.sh      # Project cleanup utility
+│   └── run_sumo_gui.sh         # SUMO X11 GUI launcher for macOS
+├── src/                        # Core Python Pipeline Code
+│   ├── area_optimization.py    # Sub-zone corridor & area optimization
+│   ├── bottleneck_analysis.py  # Hotspot identification & intervention testing
+│   ├── build_graph.py          # OSM network downloader & builder
+│   ├── compact_folium_polylines.py # Large HTML map optimization engine
+│   ├── config.py               # Global settings, paths & hyper-parameters
+│   ├── congestion_optimizer.py # Multi-algorithm city optimization engine
+│   ├── emergency_routing.py    # Priority emergency vehicle routing engine
+│   ├── feature_engineering.py  # Feature extraction & score normalizer
+│   ├── map_data_to_graph.py    # Spatial nearest-neighbor dataset projection
+│   ├── predict_congestion.py   # Machine learning inference on graph edges
+│   ├── run_pipeline.py         # Orchestrator / master pipeline runner
+│   ├── signal_intelligence.py # Topology-based intersection delay estimator
+│   ├── train_congestion_model.py # ML model training & evaluation
+│   ├── urban_optimization.py  # City-level resilience & policy analytics
+│   └── utils.py                # Graph helpers, distance & IO utilities
+├── simulate_traffic.py         # Microscopic traffic simulation interface
+├── requirements.txt            # Python dependencies
+└── README.md                   # System documentation
+```
+
+---
+
+## 🚀 Installation & Setup
+
+### 1. Prerequisites
+Ensure you have **Python 3.9+** installed on your system.
+
+### 2. Create Virtual Environment
+```bash
+# Clone the repository
+git clone https://github.com/AditiAgarwal1706/traffic-optimiser.git
+cd traffic-optimiser
+
+# Initialize virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Upgrade pip & install requirements
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+> [!TIP]
+> **Geospatial Dependency Note (macOS / Linux)**:
+> This project uses `geopandas`, `shapely`, `fiona`, and `pyproj`. On macOS, ensure Xcode Command Line Tools are installed (`xcode-select --install`). If C-extension compilation errors occur, consider installing geospatial binaries via Conda (`conda install -c conda-forge geopandas osmnx`).
+
+---
+
+## 💻 Interactive Dashboard
+
+The repository includes a web-based decision support dashboard built with **Flask** and **Leaflet.js**.
+
+### Running the Dashboard:
 ```bash
 source .venv/bin/activate
 python dashboard/app.py
 ```
 
-Then open:
+Access the dashboard in your web browser at:
+👉 **`http://localhost:5050`**
 
-- http://localhost:5050
+### Features:
+* 🗺️ Interactive dual-layer map rendering.
+* 🚦 Baseline vs. Optimized Route comparison for any origin/destination pair.
+* ⚡ Real-time display of travel time savings, congestion index reduction, and distance metrics.
 
-If the dashboard reports missing files, run:
+---
 
+## 🔄 Running the Pipeline
+
+You can execute the entire modeling pipeline end-to-end or run individual steps modularly using `src/run_pipeline.py`.
+
+### Run Full Pipeline
 ```bash
 python src/run_pipeline.py
 ```
 
----
-
-## Setup
-
-### 1) Create and activate a virtual environment
-
-From the project root:
-
+### Resume / Modular Execution
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-### 2) Notes on geospatial dependencies
-
-This project depends on geospatial libraries such as `geopandas`, `shapely`, `pyproj`, and `fiona`.
-
-- On macOS, wheels are usually available; if installation fails, you may need Xcode command line tools.
-- If you see errors around GDAL/PROJ, installing via Conda can be a fallback.
-
----
-
-## Quick start: run the full pipeline
-
-The master runner is `src/run_pipeline.py`. Run from the project root:
-
-```bash
-python src/run_pipeline.py
-```
-
-### Resume from a step
-
-```bash
+# Resume execution from Step 4 (Signal Intelligence)
 python src/run_pipeline.py --from 4
+
+# Run ONLY Step 7 (Bottleneck Analysis)
+python src/run_pipeline.py --only 7
 ```
 
-### Run only one step
+### Pipeline Step Reference
+
+| Step # | Script Module | Description |
+| :---: | :--- | :--- |
+| **1** | `src/build_graph.py` | Downloads OpenStreetMap network & generates base `bangalore_graph.graphml` |
+| **2** | `src/map_data_to_graph.py` | Projects geo-spatial incidents & ward boundaries onto graph edges |
+| **3** | `src/feature_engineering.py` | Computes normalized traffic density, risk, and structural weight features |
+| **4** | `src/signal_intelligence.py` | Estimates junction & signal delay factors across intersections |
+| **5** | `src/train_congestion_model.py` | Trains XGBoost/Random Forest models on weak supervision pseudo-labels |
+| **6** | `src/predict_congestion.py` | Performs inference and annotates all graph edges with ML congestion scores |
+| **7** | `src/bottleneck_analysis.py` | Detects bottlenecks, identifies hotspots, and runs scenario simulations |
+| **8** | `src/emergency_routing.py` | Calculates emergency corridors and computes time vs. congestion trade-offs |
+| **9** | `src/urban_optimization.py` | Generates urban resilience metrics, ward-level stats, and policy reports |
+
+---
+
+## 🏙️ Standalone Optimization Engine
+
+To run city-level multi-algorithm traffic optimization (adaptive signal timing, corridor rerouting, and demand management):
 
 ```bash
-python src/run_pipeline.py --only 6
+python src/congestion_optimizer.py
 ```
 
-Tip: step numbers are defined in `src/run_pipeline.py` (e.g., `7=bottleneck_analysis`, `8=emergency_routing`).
+**Key Outputs**:
+* `output/maps/optimization_comparison.html`
+* `output/maps/algorithm_comparison.html`
+* `output/reports/optimization_report.txt`
 
 ---
 
-## (Optional) SUMO simulation: run the GUI (macOS)
+## 🚀 Performance Engine: Compact Folium Polylines
 
-This repo can generate SUMO inputs under `sumo/` (net, routes, and `.sumocfg` configs).
+Rendering high-density urban road networks (100,000+ edges) in Folium maps can cause browser slowdowns due to massive HTML DOM size. 
 
-On macOS, the `.pkg` SUMO build used here links `sumo-gui` against **X11**, so you must install and run **XQuartz** for the GUI to open.
+This repository includes a custom rendering optimization utility (`src/compact_folium_polylines.py`) that decouples map geometry into compressed JSON chunks loaded asynchronously via JavaScript `fetch()`.
 
-1) Install XQuartz: https://www.xquartz.org
-
-2) Launch the GUI using the helper script:
-
-```bash
-./scripts/run_sumo_gui.sh
-```
-
-By default this opens `sumo/cfg/before_simulation.sumocfg`. You can also pass a different config:
-
-```bash
-./scripts/run_sumo_gui.sh sumo/cfg/after_simulation.sumocfg
-```
-
-If you only need a headless run (no GUI), use:
-
-```bash
-/Library/Frameworks/EclipseSUMO.framework/Versions/1.26.0/EclipseSUMO/bin/sumo \
-  -c sumo/cfg/before_simulation.sumocfg \
-  --no-step-log true
-```
-
----
-
-## Output artifacts policy (GitHub)
-
-Unlike many ML repos, this repo intentionally **commits `output/`** so that:
-
-- the dashboard loads immediately after clone
-- `output/maps/*.html` can be opened without first running a long pipeline
-
-You can still regenerate everything locally by running `python src/run_pipeline.py`.
-
----
-
-## Pipeline overview (what each step does)
-
-The step runner orchestrates these modules:
-
-1. **`build_graph`** — Download OSM road network for Bangalore
-   - Outputs:
-     - `output/graphs/bangalore_graph.graphml`
-     - `output/graphs/nodes.csv`, `output/graphs/edges.csv`
-     - `output/maps/road_network.html`
-
-2. **`map_data_to_graph`** — Enrich graph edges by mapping external spatial data to nearest edges
-   - Uses:
-     - `data/*.csv` files that contain latitude/longitude columns
-     - `data/*.kml` (ward/boundary file) if present
-   - Output:
-     - `output/graphs/bangalore_graph_enriched.graphml`
-
-3. **`feature_engineering`** — Build interpretable feature scores and a congestion weight formula
-   - Creates normalized scores (accidents, violations, density proxy, etc.)
-   - Output:
-     - `output/graphs/bangalore_weighted.graphml`
-
-4. **`signal_intelligence`** — Synthetic intersection/signal delay estimation
-   - Adds estimated node/edge delays and updates weights
-   - Output:
-     - `output/graphs/bangalore_signalized.graphml`
-
-5. **`train_congestion_model`** — Train ML model (weak supervision)
-   - Builds `output/ml_dataset.csv`
-   - Trains multiple models and saves the best
-   - Outputs:
-     - `output/models/congestion_model.pkl`
-     - `output/ml_dataset.csv`
-     - `output/reports/model_evaluation.txt`
-
-6. **`predict_congestion`** — Apply trained model back onto the graph
-   - Adds `ml_congestion_score` to each edge
-   - Output:
-     - `output/graphs/bangalore_ml.graphml`
-
-7. **`bottleneck_analysis`** — Bottlenecks, hotspots, and intervention simulation
-   - Outputs:
-     - `output/bottlenecks.csv`
-     - `output/hotspots.csv`
-     - `output/intervention_results.csv`
-     - `output/maps/hotspot_map.html`
-     - `output/maps/intervention_map.html`
-     - `output/reports/bottleneck_summary.txt`
-
-8. **`emergency_routing`** — Emergency routing analysis and route comparison
-   - Outputs:
-     - `output/emergency_analysis.csv`
-     - `output/maps/emergency_route.html`
-     - `output/reports/emergency_summary.txt`
-
-9. **`urban_optimization`** — City-level planning/optimization reports (zone, road class, resilience)
-   - Outputs include (examples):
-     - `output/reports/urban_optimization_report.txt`
-     - `output/reports/zone_congestion_summary.csv`
-     - `output/reports/network_resilience.csv`
-     - `output/reports/congestion_by_road_type.png`
-
----
-
-## Configuration
-
-Central configuration lives in `src/config.py`:
-
-- `PLACE_NAME`, `NETWORK_TYPE` — OSM download scope
-- All `DATA_DIR` and `OUTPUT_DIR` paths
-- Pipeline artifact names (GraphML, map HTMLs, model paths)
-- Modeling parameters (weights, random seeds, XGBoost params)
-- Emergency routing endpoints (lat/lon for source/target)
-
-If you want to run the pipeline for a different city or change file locations, update `src/config.py`.
-
----
-
-## Viewing output maps
-
-Folium maps are written to `output/maps/*.html`.
-
-- Small maps can be opened directly.
-- Very large maps (hundreds of thousands of polylines) can be slow or crash the browser.
-
-### Recommended: serve via a local HTTP server
-
-From the project root:
-
-```bash
-python -m http.server 8000
-```
-
-Then open (examples):
-
-- http://localhost:8000/output/maps/road_network.html
-- http://localhost:8000/output/maps/hotspot_map.html
-
----
-
-## Compact (browser-friendly) versions of huge maps
-
-Some maps (especially optimization comparison maps) can become extremely large because Folium embeds each polyline directly into the HTML.
-
-This repo includes `src/compact_folium_polylines.py`, which:
-
-- Extracts polyline coordinates + style + tooltip from the original map
-- Writes them to a **separate JSON file**
-- Rewrites the HTML to **fetch JSON and render via a loop** (much faster parsing)
-
-### Example: compact the optimization comparison map
-
+### Compacting Large Maps:
 ```bash
 python src/compact_folium_polylines.py \
   output/maps/optimization_comparison.html \
@@ -294,65 +244,45 @@ python src/compact_folium_polylines.py \
   --data-out output/maps/optimization_comparison.compact.polylines.json
 ```
 
-Notes:
-
-- `--select sample` helps avoid a “top-only” bias (e.g., showing mostly high-congestion segments).
-- `--color-scheme bin3` forces a strict **Low / Medium / High** palette.
-- The compact HTML uses `fetch()`, so it **must** be opened via `http://localhost:8000/...` (not `file://`).
-
----
-
-## Common troubleshooting
-
-- **`ModuleNotFoundError` after installing**
-  - Ensure VS Code/terminal is using the same interpreter as `.venv`.
-
-- **Maps show blank / no polylines**
-  - If using compact maps, confirm you are serving via `python -m http.server`.
-  - Open DevTools → Console to check for `fetch()` errors.
-
-- **Geospatial install errors (fiona/pyproj/shapely)**
-  - On macOS, install Xcode command line tools (`xcode-select --install`).
-  - If pip wheels fail, consider a Conda environment.
+> [!NOTE]
+> Compact HTML files use asynchronous `fetch()` requests to load polyline data. Serve the output directory locally via Python's HTTP server to view:
+> ```bash
+> python -m http.server 8000
+> # Open http://localhost:8000/output/maps/optimization_comparison.compact.html
+> ```
 
 ---
 
-## Reproducibility
+## 🚦 (Optional) SUMO Microscopic Simulation
 
-Randomness is controlled by `RANDOM_STATE` and other seeds in `src/config.py`.
+For micro-level vehicle traffic simulation using **Eclipse SUMO**:
 
-Even with fixed seeds, results can vary slightly across platforms due to:
-
-- floating point differences
-- geospatial library versions
-- OSM changes over time (if re-downloading the network)
-
----
-
-## Disclaimer
-
-This project is intended for educational and decision-support use.
-
-- The ML outputs are trained on pseudo-labels and synthetic features.
-- The optimization and intervention results are hypothetical scenario analyses.
-
-Use the outputs as **relative signals for prioritization**, not as ground-truth congestion measurements.
-
----
-
-## Standalone: congestion optimization algorithms
-
-The pipeline focuses on graph building → ML scoring → analysis.
-
-For the algorithmic “before/after” optimization maps and comparisons, run:
-
+1. Install **XQuartz** on macOS (required for X11 GUI rendering): [xquartz.org](https://www.xquartz.org/)
+2. Launch SUMO GUI via the helper script:
 ```bash
-python src/congestion_optimizer.py
+./scripts/run_sumo_gui.sh
+```
+3. For headless simulation runs without GUI:
+```bash
+/Library/Frameworks/EclipseSUMO.framework/Versions/1.26.0/EclipseSUMO/bin/sumo \
+  -c sumo/cfg/before_simulation.sumocfg \
+  --no-step-log true
 ```
 
-Key outputs include:
+---
 
-- `output/maps/optimization_comparison.html`
-- `output/maps/algorithm_comparison.html`
-- `output/reports/optimization_report.txt`
-- `output/optimization_results.csv`
+## 🛠️ Configuration & Customization
+
+All pipeline settings, paths, random seeds, and hyper-parameters are central to `src/config.py`:
+
+* `PLACE_NAME`: Change target city/region for OpenStreetMap download (default: `"Bengaluru, India"`).
+* `NETWORK_TYPE`: OSM network filtering (`"drive"`, `"all"`, etc.).
+* `MODEL_PARAMS`: XGBoost / Random Forest hyper-parameters and training seeds.
+* `EMERGENCY_ROUTING`: Source & target coordinates for emergency priority tests.
+
+---
+
+## 📄 License & Disclaimer
+
+* **License**: Open-source under the [MIT License](LICENSE).
+* **Disclaimer**: This framework is designed for research, decision-support, and scenario prioritization. Outputs represent relative indicators based on topological, weak-supervision, and civic data inputs, and should be calibrated with physical sensor ground-truth prior to real-world infrastructure deployment.
