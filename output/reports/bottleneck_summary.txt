@@ -1,0 +1,90 @@
+=================================================================
+BOTTLENECK & HOTSPOT ANALYSIS REPORT — BANGALORE TRAFFIC
+=================================================================
+
+TOP 20 STRUCTURAL BOTTLENECKS (by betweenness centrality)
+-----------------------------------------------------------------
+  # 1  Node 11964711936.0  centrality=1.000000  degree=4  signal_delay=116.0s (est.)
+  # 2  Node 610334163.0  centrality=0.927445  degree=4  signal_delay=111.6s (est.)
+  # 3  Node 1078399170.0  centrality=0.856376  degree=5  signal_delay=131.4s (est.)
+  # 4  Node 6271093354.0  centrality=0.888742  degree=4  signal_delay=109.3s (est.)
+  # 5  Node 333814130.0  centrality=0.884578  degree=4  signal_delay=109.1s (est.)
+  # 6  Node 6880117251.0  centrality=0.876983  degree=4  signal_delay=108.6s (est.)
+  # 7  Node 11951813051.0  centrality=0.819109  degree=5  signal_delay=129.1s (est.)
+  # 8  Node 352930062.0  centrality=0.856974  degree=4  signal_delay=107.4s (est.)
+  # 9  Node 5392857471.0  centrality=0.844326  degree=4  signal_delay=106.7s (est.)
+  #10  Node 11888270304.0  centrality=0.884620  degree=3  signal_delay=85.1s (est.)
+  #11  Node 2578344262.0  centrality=0.825059  degree=4  signal_delay=105.5s (est.)
+  #12  Node 2257274295.0  centrality=0.804278  degree=4  signal_delay=104.3s (est.)
+  #13  Node 2459007972.0  centrality=0.849737  degree=3  signal_delay=83.0s (est.)
+  #14  Node 13473562237.0  centrality=0.796419  degree=4  signal_delay=103.8s (est.)
+  #15  Node 3826215062.0  centrality=0.844369  degree=3  signal_delay=82.7s (est.)
+  #16  Node 9903952377.0  centrality=0.790091  degree=4  signal_delay=103.4s (est.)
+  #17  Node 2446005991.0  centrality=0.836841  degree=3  signal_delay=82.2s (est.)
+  #18  Node 430127772.0  centrality=0.835436  degree=3  signal_delay=82.1s (est.)
+  #19  Node 6905012676.0  centrality=0.835394  degree=3  signal_delay=82.1s (est.)
+  #20  Node 10095905213.0  centrality=0.833664  degree=3  signal_delay=82.0s (est.)
+
+TOP 15 CONGESTION HOTSPOTS (composite score)
+-----------------------------------------------------------------
+  # 1  Varthur - Sarjapur Road              score=0.6329  ML=0.9357
+  # 2  Varthur - Sarjapur Road              score=0.6329  ML=0.9357
+  # 3  Varthur - Sarjapur Road              score=0.6327  ML=0.9362
+  # 4  Varthur - Sarjapur Road              score=0.6327  ML=0.9362
+  # 5  Varthur - Sarjapur Road              score=0.6325  ML=0.9178
+  # 6  Varthur - Sarjapur Road              score=0.6325  ML=0.9178
+  # 7  Varthur - Sarjapur Road              score=0.6324  ML=0.9341
+  # 8  Varthur - Sarjapur Road              score=0.6324  ML=0.9341
+  # 9  Varthur - Sarjapur Road              score=0.6322  ML=0.9352
+  #10  Varthur - Sarjapur Road              score=0.6322  ML=0.9352
+  #11  Varthur - Sarjapur Road              score=0.6319  ML=0.9342
+  #12  Varthur - Sarjapur Road              score=0.6319  ML=0.9342
+  #13  Varthur - Sarjapur Road              score=0.6314  ML=0.9195
+  #14  Varthur - Sarjapur Road              score=0.6314  ML=0.9195
+  #15  Varthur - Sarjapur Road              score=0.6313  ML=0.9314
+
+TOP 15 CRITICAL ROADS (congestion + centrality)
+-----------------------------------------------------------------
+  # 1  Outer Ring Road                      criticality=0.9146
+  # 2  Outer Ring Road                      criticality=0.9091
+  # 3  Outer Ring Road                      criticality=0.9006
+  # 4  Kuvempu Underpass                    criticality=0.8934
+  # 5  Outer Ring Road                      criticality=0.8913
+  # 6  Nagawara Flyover                     criticality=0.8866
+  # 7  Outer Ring Road                      criticality=0.8849
+  # 8  Outer Ring Road                      criticality=0.8823
+  # 9  Outer Ring Road                      criticality=0.8804
+  #10  ['Veerannapalya Flyover', 'Outer Ri  criticality=0.8799
+  #11  Outer Ring Road                      criticality=0.8798
+  #12  Outer Ring Road                      criticality=0.8793
+  #13  Bhadrappa Layout Flyover             criticality=0.8769
+  #14  Outer Ring Road                      criticality=0.8743
+  #15  Outer Ring Road                      criticality=0.8721
+
+INTERVENTION SIMULATION RESULTS (⚠ HYPOTHETICAL)
+-----------------------------------------------------------------
+  Scenario A: Adaptive signal control (−30% delay)
+  Scenario B: Enhanced enforcement (+20% compliance)
+  Scenario C: Violation reduction campaign (−25% violations)
+
+  Varthur - Sarjapur Road         A:+4.5%  B:+1.7%  C:+8.6%
+  Varthur - Sarjapur Road         A:+4.5%  B:+1.7%  C:+8.6%
+  Varthur - Sarjapur Road         A:+4.5%  B:+1.7%  C:+8.6%
+  Varthur - Sarjapur Road         A:+4.5%  B:+1.7%  C:+8.6%
+  Varthur - Sarjapur Road         A:+4.7%  B:+1.7%  C:+8.5%
+  Varthur - Sarjapur Road         A:+4.7%  B:+1.7%  C:+8.5%
+  Varthur - Sarjapur Road         A:+4.5%  B:+1.7%  C:+8.6%
+  Varthur - Sarjapur Road         A:+4.5%  B:+1.7%  C:+8.6%
+  Varthur - Sarjapur Road         A:+4.5%  B:+1.7%  C:+8.6%
+  Varthur - Sarjapur Road         A:+4.5%  B:+1.7%  C:+8.6%
+  Varthur - Sarjapur Road         A:+4.5%  B:+1.7%  C:+8.6%
+  Varthur - Sarjapur Road         A:+4.5%  B:+1.7%  C:+8.6%
+  Varthur - Sarjapur Road         A:+4.6%  B:+1.7%  C:+8.6%
+  Varthur - Sarjapur Road         A:+4.6%  B:+1.7%  C:+8.6%
+  Varthur - Sarjapur Road         A:+4.5%  B:+1.7%  C:+8.6%
+
+LIMITATIONS:
+  • Congestion scores are ML pseudo-labels (weak supervision).
+  • Signal delays are synthetic topology estimates.
+  • Intervention reductions are model-based, not empirical.
+=================================================================

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Bangalore Traffic — Route Optimizer</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root {
+    --bg:#0d1117; --surface:#161b22; --border:#30363d;
+    --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff;
+    --before:#f97316; --after:#22d3ee;
+    --green:#3fb950; --red:#f85149; --yellow:#d29922;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; height:100vh; display:flex; flex-direction:column; }
+
+  /* ── header ── */
+  header { background:var(--surface); border-bottom:1px solid var(--border); padding:.75rem 1.5rem; display:flex; align-items:center; gap:1rem; flex-shrink:0; }
+  header h1 { font-size:1.1rem; font-weight:700; color:var(--text); }
+  header p  { font-size:.8rem; color:var(--muted); }
+  .badge { background:#1f6feb33; border:1px solid #1f6feb; color:#58a6ff; padding:.15rem .6rem; border-radius:999px; font-size:.72rem; font-weight:600; }
+
+  /* ── main layout ── */
+  .main { display:flex; flex:1; overflow:hidden; }
+
+  /* ── sidebar ── */
+  .sidebar { width:340px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; }
+  .sidebar-section { padding:1rem 1.2rem; border-bottom:1px solid var(--border); }
+  .sidebar-section h2 { font-size:.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; margin-bottom:.75rem; }
+
+  label { display:block; font-size:.82rem; color:var(--muted); margin-bottom:.3rem; }
+  select, input[type=text] {
+    width:100%; background:#0d1117; border:1px solid var(--border);
+    color:var(--text); padding:.5rem .7rem; border-radius:6px;
+    font-size:.85rem; margin-bottom:.6rem; outline:none;
+  }
+  select:focus, input:focus { border-color:var(--accent); }
+  .coord-row { display:grid; grid-template-columns:1fr 1fr; gap:.5rem; }
+  .coord-row input { margin-bottom:0; }
+
+  .btn {
+    width:100%; padding:.65rem; border-radius:8px; border:none;
+    font-size:.9rem; font-weight:600; cursor:pointer; transition:.15s;
+  }
+  .btn-primary { background:#1f6feb; color:#fff; }
+  .btn-primary:hover { background:#388bfd; }
+  .btn-primary:disabled { background:#21262d; color:var(--muted); cursor:not-allowed; }
+  .btn-sm { width:auto; padding:.3rem .7rem; font-size:.78rem; border-radius:5px; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; }
+  .btn-sm:hover { border-color:var(--accent); color:var(--accent); }
+
+  /* ── map click hint ── */
+  .map-hint { font-size:.78rem; color:var(--muted); margin-top:.5rem; }
+  .map-hint span { color:var(--accent); }
+
+  /* ── results ── */
+  .results { display:none; }
+  .kpi-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.5rem; margin-bottom:.75rem; }
+  .kpi { background:#0d1117; border:1px solid var(--border); border-radius:8px; padding:.6rem .7rem; text-align:center; }
+  .kpi-val { font-size:1.3rem; font-weight:700; }
+  .kpi-lbl { font-size:.7rem; color:var(--muted); margin-top:.1rem; }
+  .green { color:var(--green); }
+  .red   { color:var(--red); }
+  .yellow{ color:var(--yellow); }
+
+  .route-card { border-radius:8px; padding:.75rem; margin-bottom:.6rem; }
+  .route-card.before { background:#f9731610; border:1px solid #f9731640; }
+  .route-card.after  { background:#22d3ee10; border:1px solid #22d3ee40; }
+  .route-card h3 { font-size:.82rem; font-weight:700; margin-bottom:.5rem; }
+  .route-card h3.before { color:var(--before); }
+  .route-card h3.after  { color:var(--after); }
+  .stat-row { display:flex; justify-content:space-between; font-size:.8rem; padding:.2rem 0; border-bottom:1px solid #ffffff08; }
+  .stat-row:last-child { border:none; }
+  .stat-val { font-weight:600; color:var(--text); }
+
+  .road-list { font-size:.75rem; color:var(--muted); margin-top:.4rem; line-height:1.6; }
+
+  .hotspot-list { max-height:140px; overflow-y:auto; }
+  .hotspot-item { display:flex; justify-content:space-between; align-items:center; padding:.3rem 0; border-bottom:1px solid #ffffff08; font-size:.78rem; }
+  .hotspot-item:last-child { border:none; }
+  .cong-bar { height:6px; border-radius:3px; background:linear-gradient(90deg,#22c55e,#eab308,#ef4444); }
+  .cong-fill { height:100%; border-radius:3px; background:var(--red); }
+
+  .spinner { display:none; text-align:center; padding:1rem; color:var(--muted); font-size:.85rem; }
+  .error-msg { display:none; background:#f8514920; border:1px solid #f85149; border-radius:6px; padding:.6rem .8rem; font-size:.82rem; color:#f85149; margin-top:.5rem; }
+
+  /* ── map area ── */
+  .map-area { flex:1; display:flex; flex-direction:column; }
+  .map-tabs { display:flex; background:var(--surface); border-bottom:1px solid var(--border); flex-shrink:0; }
+  .tab { padding:.6rem 1.2rem; font-size:.85rem; cursor:pointer; color:var(--muted); border-bottom:2px solid transparent; transition:.15s; }
+  .tab.active { color:var(--text); border-bottom-color:var(--accent); }
+  #map { flex:1; }
+
+  /* ── legend ── */
+  .map-legend { position:absolute; bottom:30px; right:10px; z-index:1000; background:#161b22ee; border:1px solid var(--border); border-radius:8px; padding:.6rem .9rem; font-size:.78rem; color:var(--text); }
+  .legend-row { display:flex; align-items:center; gap:.5rem; margin:.2rem 0; }
+  .legend-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+  .legend-line { width:24px; height:4px; border-radius:2px; flex-shrink:0; }
+
+  ::-webkit-scrollbar { width:5px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🚦 Bangalore Traffic Route Optimizer</h1>
+    <p>PageRank-Guided Belief Propagation · OSM road network · ML congestion scores</p>
+  </div>
+  <span class="badge">★ Best Algorithm: 19.7% mean improvement</span>
+</header>
+
+<div class="main">
+  <!-- ── sidebar ── -->
+  <div class="sidebar">
+
+    <!-- source -->
+    <div class="sidebar-section">
+      <h2>Source (A)</h2>
+      <label>Preset location</label>
+      <select id="srcPreset" onchange="applyPreset('src')">
+        <option value="">— pick a place or click map —</option>
+        {% for p in presets %}<option value="{{ p }}">{{ p }}</option>{% endfor %}
+      </select>
+      <div class="coord-row">
+        <div><label>Latitude</label><input type="text" id="srcLat" placeholder="12.9177"/></div>
+        <div><label>Longitude</label><input type="text" id="srcLon" placeholder="77.6238"/></div>
+      </div>
+    </div>
+
+    <!-- destination -->
+    <div class="sidebar-section">
+      <h2>Destination (B)</h2>
+      <label>Preset location</label>
+      <select id="dstPreset" onchange="applyPreset('dst')">
+        <option value="">— pick a place or click map —</option>
+        {% for p in presets %}<option value="{{ p }}">{{ p }}</option>{% endfor %}
+      </select>
+      <div class="coord-row">
+        <div><label>Latitude</label><input type="text" id="dstLat" placeholder="12.9698"/></div>
+        <div><label>Longitude</label><input type="text" id="dstLon" placeholder="77.7500"/></div>
+      </div>
+      <p class="map-hint">Or <span>click the map</span> to set A then B</p>
+    </div>
+
+    <!-- action -->
+    <div class="sidebar-section">
+      <button class="btn btn-primary" id="routeBtn" onclick="findRoute()">
+        Find Route &amp; Compare
+      </button>
+      <div class="spinner" id="spinner">⏳ Computing routes…</div>
+      <div class="error-msg" id="errorMsg"></div>
+    </div>
+
+    <!-- results -->
+    <div class="sidebar-section results" id="results">
+      <h2>Improvement (PageRank Relief)</h2>
+      <div class="kpi-grid" id="kpiGrid"></div>
+
+      <div class="route-card before">
+        <h3 class="before">▶ BEFORE — Congested Route</h3>
+        <div id="beforeStats"></div>
+      </div>
+      <div class="route-card after">
+        <h3 class="after">▶ AFTER — Optimised Route</h3>
+        <div id="afterStats"></div>
+      </div>
+    </div>
+
+    <!-- hotspots -->
+    <div class="sidebar-section results" id="hotspotSection">
+      <h2>Hotspots Along Route</h2>
+      <div class="hotspot-list" id="hotspotList"></div>
+    </div>
+
+  </div>
+
+  <!-- ── map ── -->
+  <div class="map-area" style="position:relative;">
+    <div class="map-tabs">
+      <div class="tab active" id="tabBoth"   onclick="setTab('both')">Both Routes</div>
+      <div class="tab"        id="tabBefore" onclick="setTab('before')">Before Only</div>
+      <div class="tab"        id="tabAfter"  onclick="setTab('after')">After Only</div>
+    </div>
+    <div id="map"></div>
+    <div class="map-legend">
+      <div class="legend-row"><div class="legend-line" style="background:#f97316"></div> Before (congested)</div>
+      <div class="legend-row"><div class="legend-line" style="background:#22d3ee"></div> After (optimised)</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#ef4444"></div> Hotspot</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#f97316;border-radius:0;transform:rotate(45deg)"></div> Bottleneck</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#22c55e"></div> Source (A)</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#a855f7"></div> Destination (B)</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── map init ──────────────────────────────────────────────────────────────
+const map = L.map("map", { zoomControl: true }).setView([12.9716, 77.5946], 12);
+L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+  attribution: '© OpenStreetMap © CARTO', maxZoom: 19
+}).addTo(map);
+
+// ── state ─────────────────────────────────────────────────────────────────
+let presets = {};
+let clickStep = 0;   // 0=src, 1=dst
+let srcMarker = null, dstMarker = null;
+let layerBefore = null, layerAfter = null;
+let hotspotLayer = null, bottleneckLayer = null;
+let currentTab = "both";
+
+// ── load presets ──────────────────────────────────────────────────────────
+fetch("/api/presets").then(r => r.json()).then(d => { presets = d; });
+
+function applyPreset(which) {
+  const sel = document.getElementById(which === "src" ? "srcPreset" : "dstPreset");
+  const name = sel.value;
+  if (!name || !presets[name]) return;
+  const {lat, lon} = presets[name];
+  if (which === "src") {
+    document.getElementById("srcLat").value = lat;
+    document.getElementById("srcLon").value = lon;
+    placeMarker("src", lat, lon);
+  } else {
+    document.getElementById("dstLat").value = lat;
+    document.getElementById("dstLon").value = lon;
+    placeMarker("dst", lat, lon);
+  }
+}
+
+// ── map click to set A/B ──────────────────────────────────────────────────
+map.on("click", e => {
+  const {lat, lng} = e.latlng;
+  if (clickStep === 0) {
+    document.getElementById("srcLat").value = lat.toFixed(6);
+    document.getElementById("srcLon").value = lng.toFixed(6);
+    document.getElementById("srcPreset").value = "";
+    placeMarker("src", lat, lng);
+    clickStep = 1;
+  } else {
+    document.getElementById("dstLat").value = lat.toFixed(6);
+    document.getElementById("dstLon").value = lng.toFixed(6);
+    document.getElementById("dstPreset").value = "";
+    placeMarker("dst", lat, lng);
+    clickStep = 0;
+  }
+});
+
+function placeMarker(which, lat, lon) {
+  const color = which === "src" ? "#22c55e" : "#a855f7";
+  const label = which === "src" ? "A" : "B";
+  const icon = L.divIcon({
+    className: "",
+    html: `<div style="width:28px;height:28px;border-radius:50%;background:${color};
+           border:3px solid white;display:flex;align-items:center;justify-content:center;
+           font-weight:700;font-size:13px;color:white;box-shadow:0 2px 8px #0008">${label}</div>`,
+    iconSize: [28,28], iconAnchor: [14,14]
+  });
+  if (which === "src") {
+    if (srcMarker) map.removeLayer(srcMarker);
+    srcMarker = L.marker([lat, lon], {icon}).addTo(map)
+      .bindPopup(`<b>Source (A)</b><br>${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+  } else {
+    if (dstMarker) map.removeLayer(dstMarker);
+    dstMarker = L.marker([lat, lon], {icon}).addTo(map)
+      .bindPopup(`<b>Destination (B)</b><br>${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+  }
+}
+
+// ── route finding ─────────────────────────────────────────────────────────
+async function findRoute() {
+  const srcLat = parseFloat(document.getElementById("srcLat").value);
+  const srcLon = parseFloat(document.getElementById("srcLon").value);
+  const dstLat = parseFloat(document.getElementById("dstLat").value);
+  const dstLon = parseFloat(document.getElementById("dstLon").value);
+
+  if (isNaN(srcLat)||isNaN(srcLon)||isNaN(dstLat)||isNaN(dstLon)) {
+    showError("Please set both source and destination.");
+    return;
+  }
+
+  setLoading(true);
+  clearLayers();
+
+  try {
+    const res = await fetch("/api/route", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({src_lat:srcLat, src_lon:srcLon, dst_lat:dstLat, dst_lon:dstLon})
+    });
+    const data = await res.json();
+    if (!res.ok) { showError(data.error || "Route not found."); return; }
+    renderResult(data);
+  } catch(e) {
+    showError("Server error: " + e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+function renderResult(data) {
+  const {before, after, improvement, hotspots, bottlenecks} = data;
+
+  // ── draw routes ──────────────────────────────────────────────────────
+  if (before) {
+    layerBefore = L.polyline(before.coords, {
+      color:"#f97316", weight:5, opacity:0.85,
+      dashArray: null
+    }).addTo(map);
+    layerBefore.bindPopup(routePopup("BEFORE (Congested)", before, "#f97316"));
+  }
+  if (after) {
+    layerAfter = L.polyline(after.coords, {
+      color:"#22d3ee", weight:4, opacity:0.9,
+      dashArray:"8,4"
+    }).addTo(map);
+    layerAfter.bindPopup(routePopup("AFTER (Optimised)", after, "#22d3ee"));
+  }
+
+  // ── hotspot markers ──────────────────────────────────────────────────
+  hotspotLayer = L.layerGroup();
+  hotspots.forEach(h => {
+    const r = Math.round(h.ml_congestion_score * 100);
+    const icon = L.divIcon({
+      className:"",
+      html:`<div style="width:14px;height:14px;border-radius:50%;
+            background:#ef4444;border:2px solid #fca5a5;opacity:.85;
+            box-shadow:0 0 8px #ef444488"></div>`,
+      iconSize:[14,14], iconAnchor:[7,7]
+    });
+    L.marker([h.lat, h.lon], {icon}).addTo(hotspotLayer)
+      .bindPopup(`<b>🔴 Hotspot</b><br>${h.road_name||"Unknown road"}<br>Congestion: <b>${r}%</b>`);
+  });
+  hotspotLayer.addTo(map);
+
+  // ── bottleneck markers ───────────────────────────────────────────────
+  bottleneckLayer = L.layerGroup();
+  bottlenecks.forEach(b => {
+    const icon = L.divIcon({
+      className:"",
+      html:`<div style="width:0;height:0;border-left:8px solid transparent;
+            border-right:8px solid transparent;border-bottom:14px solid #f97316;
+            filter:drop-shadow(0 0 4px #f9731688)"></div>`,
+      iconSize:[16,14], iconAnchor:[8,14]
+    });
+    L.marker([b.lat, b.lon], {icon}).addTo(bottleneckLayer)
+      .bindPopup(`<b>⚠ Bottleneck</b><br>Signal delay: <b>${Math.round(b.signal_delay_est)}s</b>`);
+  });
+  bottleneckLayer.addTo(map);
+
+  // ── fit map ──────────────────────────────────────────────────────────
+  if (before && before.coords.length > 0) {
+    const allCoords = [...(before.coords||[]), ...(after ? after.coords : [])];
+    map.fitBounds(L.latLngBounds(allCoords), {padding:[40,40]});
+  }
+
+  // ── sidebar stats ────────────────────────────────────────────────────
+  document.querySelectorAll(".results").forEach(el => el.style.display = "block");
+
+  // KPIs
+  const kpiGrid = document.getElementById("kpiGrid");
+  kpiGrid.innerHTML = "";
+  const kpis = [
+    { val: improvement.time_pct, lbl: "Travel Time", unit:"%" },
+    { val: improvement.cong_pct, lbl: "Congestion",  unit:"%" },
+    { val: improvement.len_pct,  lbl: "Route Length", unit:"%" },
+  ];
+  kpis.forEach(k => {
+    const cls = k.val > 0 ? "green" : (k.val < 0 ? "red" : "yellow");
+    const arrow = k.val > 0 ? "▼" : (k.val < 0 ? "▲" : "–");
+    kpiGrid.innerHTML += `
+      <div class="kpi">
+        <div class="kpi-val ${cls}">${arrow} ${Math.abs(k.val)}${k.unit}</div>
+        <div class="kpi-lbl">${k.lbl}</div>
+      </div>`;
+  });
+
+  // Route cards
+  renderRouteCard("beforeStats", before);
+  renderRouteCard("afterStats",  after);
+
+  // Hotspot list
+  const hl = document.getElementById("hotspotList");
+  hl.innerHTML = "";
+  if (hotspots.length === 0) {
+    hl.innerHTML = `<div style="color:var(--muted);font-size:.8rem">No major hotspots near this route.</div>`;
+  } else {
+    hotspots.forEach(h => {
+      const pct = Math.round(h.ml_congestion_score * 100);
+      hl.innerHTML += `
+        <div class="hotspot-item">
+          <span>${h.road_name || "Unnamed road"}</span>
+          <span style="color:${pct>70?'#ef4444':pct>50?'#eab308':'#22c55e'};font-weight:600">${pct}%</span>
+        </div>`;
+    });
+  }
+
+  applyTab(currentTab);
+}
+
+function renderRouteCard(id, route) {
+  if (!route) { document.getElementById(id).innerHTML = "<i>No route found</i>"; return; }
+  const mins = route.est_time_min;
+  const km   = route.length_km;
+  const effCong = Math.round(route.avg_congestion * 100);
+  const rawCong = Math.round((route.avg_raw_congestion || route.avg_congestion) * 100);
+  const congColor = effCong > 60 ? "#ef4444" : effCong > 40 ? "#eab308" : "#22c55e";
+  document.getElementById(id).innerHTML = `
+    <div class="stat-row"><span>Distance</span><span class="stat-val">${km} km</span></div>
+    <div class="stat-row"><span>Est. travel time</span><span class="stat-val">${mins} min</span></div>
+    <div class="stat-row"><span>Effective congestion</span><span class="stat-val" style="color:${congColor}">${effCong}%</span></div>
+    <div class="stat-row"><span>Raw congestion score</span><span class="stat-val" style="color:var(--muted)">${rawCong}%</span></div>
+    <div class="stat-row"><span>Road segments</span><span class="stat-val">${route.n_edges}</span></div>
+    ${route.road_names.length ? `<div class="road-list">Via: ${route.road_names.slice(0,5).join(" · ")}</div>` : ""}
+  `;
+}
+
+function routePopup(title, route, color) {
+  return `<b style="color:${color}">${title}</b><br>
+    ${route.length_km} km · ${route.est_time_min} min<br>
+    Avg congestion: ${Math.round(route.avg_congestion*100)}%`;
+}
+
+// ── tabs ──────────────────────────────────────────────────────────────────
+function setTab(tab) {
+  currentTab = tab;
+  ["both","before","after"].forEach(t => {
+    document.getElementById("tab"+t.charAt(0).toUpperCase()+t.slice(1))
+      .classList.toggle("active", t === tab);
+  });
+  applyTab(tab);
+}
+
+function applyTab(tab) {
+  if (layerBefore) { if (tab==="after") map.removeLayer(layerBefore); else layerBefore.addTo(map); }
+  if (layerAfter)  { if (tab==="before") map.removeLayer(layerAfter); else layerAfter.addTo(map); }
+}
+
+// ── helpers ───────────────────────────────────────────────────────────────
+function clearLayers() {
+  [layerBefore, layerAfter, hotspotLayer, bottleneckLayer].forEach(l => { if(l) map.removeLayer(l); });
+  layerBefore = layerAfter = hotspotLayer = bottleneckLayer = null;
+  document.querySelectorAll(".results").forEach(el => el.style.display = "none");
+  document.getElementById("errorMsg").style.display = "none";
+}
+
+function setLoading(on) {
+  document.getElementById("spinner").style.display = on ? "block" : "none";
+  document.getElementById("routeBtn").disabled = on;
+}
+
+function showError(msg) {
+  const el = document.getElementById("errorMsg");
+  el.textContent = msg;
+  el.style.display = "block";
+}
+
+// ── keyboard shortcut ─────────────────────────────────────────────────────
+document.addEventListener("keydown", e => { if (e.key === "Enter") findRoute(); });
+</script>
+</body>
+</html>

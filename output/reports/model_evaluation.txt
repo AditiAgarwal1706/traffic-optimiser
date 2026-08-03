@@ -1,0 +1,52 @@
+============================================================
+CONGESTION MODEL EVALUATION REPORT
+============================================================
+
+⚠ WEAK SUPERVISION DISCLAIMER
+The target variable 'congestion_score' is a PSEUDO-LABEL
+derived from a weighted formula of real feature scores plus
+synthetic temporal/weather factors. It is NOT a measured
+ground-truth congestion value.
+
+FEATURE COLUMNS:
+  road_length                    (real/proxy)
+  accident_score                 (real/proxy)
+  violation_score                (real/proxy)
+  traffic_density                (real/proxy)
+  enforcement_score              (real/proxy)
+  centrality_score               (real/proxy)
+  road_type                      (real/proxy)
+  intersection_delay             (real/proxy)
+  base_weight                    (real/proxy)
+  hour_synthetic                 (SYNTHETIC)
+  weather_synthetic              (SYNTHETIC)
+
+MODEL PERFORMANCE (20% held-out test set):
+
+  XGBoost
+    MAE  : 0.000666
+    RMSE : 0.001311
+    R²   : 0.999897
+
+  RandomForest
+    MAE  : 0.003661
+    RMSE : 0.006450
+    R²   : 0.997516
+
+  LinearRegression
+    MAE  : 0.076495
+    RMSE : 0.081541
+    R²   : 0.603061
+
+LIMITATIONS:
+  1. No real congestion ground truth — pseudo-labels only.
+  2. Traffic density is area-level, not edge-level.
+  3. Signal delays are synthetic topology estimates.
+  4. Temporal features (hour, weather) are randomly sampled.
+  5. Model generalizes to Bangalore topology only.
+
+FUTURE WORK:
+  • Integrate real-time GPS probe data for ground truth.
+  • Use actual signal timing data from BTP.
+  • Add weather API integration for real weather features.
+============================================================

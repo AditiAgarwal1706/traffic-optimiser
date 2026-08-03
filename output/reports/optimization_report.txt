@@ -1,0 +1,55 @@
+========================================================================
+AI CONGESTION OPTIMISATION REPORT — BANGALORE CITY-WIDE
+========================================================================
+
+ALGORITHM PERFORMANCE SUMMARY
+------------------------------------------------------------------------
+  Algorithm                            Mean Improv  Max Improv  Edges >5%  Edges >15%
+------------------------------------------------------------------------
+  Raw (Baseline)                            0.000%      0.000%          0           0
+  Greedy Bottleneck Relief                  6.750%     40.000%    118,050      59,025
+  Dijkstra Flow Redistribution              0.006%     30.000%        101         101
+  Simulated Annealing                       0.001%      3.511%          0           0
+  Genetic Algorithm                         4.250%      8.337%    201,137           0
+  PageRank-Guided Relief                   19.727%     35.000%    316,477     196,752
+
+  ★ BEST ALGORITHM: PageRank-Guided Relief
+
+ZONE-LEVEL IMPROVEMENT (Best Algorithm)
+------------------------------------------------------------------------
+  Central         edges=22,270  mean_improv=21.373%  max_improv=35.000%
+  East            edges=65,040  mean_improv=20.370%  max_improv=35.000%
+  West            edges=74,396  mean_improv=19.175%  max_improv=35.000%
+  North           edges=79,818  mean_improv=19.716%  max_improv=35.000%
+  South           edges=60,359  mean_improv=21.129%  max_improv=35.000%
+  South-West      edges=86,621  mean_improv=20.232%  max_improv=35.000%
+
+ALGORITHM DESCRIPTIONS
+------------------------------------------------------------------------
+  1. Greedy Bottleneck Relief
+     Sort edges by congestion; apply tiered weight reduction
+     (top 5%→−40%, next 10%→−25%, next 15%→−15%).
+
+  2. Dijkstra Flow Redistribution
+     Identify top-200 congested edges; find alternative paths
+     via Dijkstra on residual graph; redistribute 30% of load.
+
+  3. Simulated Annealing
+     Optimise intersection signal delays (10–120s) to minimise
+     city-wide mean congestion. T0=1.0, cooling=0.995, 3000 iter.
+
+  4. Genetic Algorithm
+     Evolve zone-level intervention mix (signal/enforcement/violation)
+     over 80 generations, population 60, crossover 0.8, mutation 0.15.
+
+  5. PageRank-Guided Relief
+     Use node PageRank as traffic-importance proxy; apply
+     differentiated relief based on (PageRank × congestion) quadrant.
+
+LIMITATIONS
+------------------------------------------------------------------------
+  • All congestion scores are ML pseudo-labels (weak supervision).
+  • Optimisation operates on a static graph snapshot.
+  • No real-time demand or signal data used.
+  • Improvement percentages are model estimates, not empirical.
+========================================================================

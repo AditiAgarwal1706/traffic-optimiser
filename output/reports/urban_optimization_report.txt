@@ -1,0 +1,53 @@
+=================================================================
+URBAN OPTIMIZATION REPORT — BANGALORE TRAFFIC SYSTEM
+=================================================================
+
+1. CONGESTION BY ROAD TYPE
+-----------------------------------------------------------------
+  motorway              edges=   54  mean_cong=0.6153  length=54.4 km
+  motorway_link         edges=   93  mean_cong=0.4055  length=18.9 km
+  trunk                 edges= 1066  mean_cong=0.6307  length=254.5 km
+  primary               edges= 4087  mean_cong=0.6170  length=456.5 km
+  trunk_link            edges=  377  mean_cong=0.4422  length=21.3 km
+  primary_link          edges=  439  mean_cong=0.4265  length=24.8 km
+  secondary             edges=13649  mean_cong=0.6183  length=884.8 km
+  secondary_link        edges=  368  mean_cong=0.4240  length=11.1 km
+  tertiary              edges=39618  mean_cong=0.5619  length=2315.6 km
+  residential           edges=327052  mean_cong=0.4196  length=19792.3 km
+
+2. ZONE-WISE CONGESTION SUMMARY
+-----------------------------------------------------------------
+  South            edges=  275  mean_cong=0.6709  mean_acc=0.0471
+  South-West       edges=  309  mean_cong=0.6383  mean_acc=0.0471
+  East             edges= 6572  mean_cong=0.6312  mean_acc=0.0439
+  North            edges=  531  mean_cong=0.6276  mean_acc=0.0451
+  Central          edges=  224  mean_cong=0.6193  mean_acc=0.0471
+  West             edges=  550  mean_cong=0.5863  mean_acc=0.0160
+  Other            edges=385042  mean_cong=0.4388  mean_acc=0.0192
+
+3. TEMPORAL PATTERN (⚠ SYNTHETIC)
+-----------------------------------------------------------------
+  Peak hours: 08:00–10:00 (morning) and 17:00–20:00 (evening)
+  Based on heuristic multipliers — not real time-series data.
+
+4. NETWORK RESILIENCE
+-----------------------------------------------------------------
+  Remove node #1: components=2  connectivity_loss=0.00%
+  Remove node #2: components=2  connectivity_loss=0.00%
+  Remove node #3: components=2  connectivity_loss=0.00%
+  Remove node #4: components=3  connectivity_loss=0.00%
+  Remove node #5: components=3  connectivity_loss=0.00%
+
+POLICY RECOMMENDATIONS (decision-support):
+  1. Prioritize signal optimization on primary/trunk roads.
+  2. Focus enforcement in South and East zones (highest congestion).
+  3. Protect top-5 bottleneck nodes from construction/disruption.
+  4. Expand road capacity on residential roads with high centrality.
+  5. Implement demand management during 08:00–10:00 and 17:00–20:00.
+
+LIMITATIONS:
+  • All congestion scores are ML pseudo-labels.
+  • Zone classification uses keyword matching (approximate).
+  • Temporal patterns are synthetic heuristics.
+  • Resilience analysis is graph-theoretic, not traffic-flow based.
+=================================================================

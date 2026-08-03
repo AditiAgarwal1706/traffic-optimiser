@@ -1,0 +1,34 @@
+=================================================================
+EMERGENCY ROUTING ANALYSIS — BANGALORE TRAFFIC
+Corridor: Silk Board → Whitefield
+=================================================================
+
+ROUTE COMPARISON:
+-----------------------------------------------------------------
+  shortest_distance        : 117 nodes | 17.37 km | avg_congestion=0.6055
+  least_congestion         : 102 nodes | 18.53 km | avg_congestion=0.5611
+  emergency_priority       : 105 nodes | 27.34 km | avg_congestion=0.5837
+
+TOP VULNERABLE SEGMENTS (emergency route, high congestion):
+-----------------------------------------------------------------
+  Outer Ring Road                      congestion=0.6807  delay=76.3s (est.)
+  Outer Ring Road                      congestion=0.6807  delay=73.7s (est.)
+  ['Marathahalli Underpass', 'Outer R  congestion=0.6807  delay=82.7s (est.)
+  Outer Ring Road                      congestion=0.6807  delay=76.7s (est.)
+  Outer Ring Road                      congestion=0.6807  delay=74.6s (est.)
+  Outer Ring Road                      congestion=0.6807  delay=87.3s (est.)
+  Outer Ring Road                      congestion=0.6807  delay=79.4s (est.)
+  Outer Ring Road                      congestion=0.6807  delay=72.9s (est.)
+  Outer Ring Road                      congestion=0.6804  delay=78.5s (est.)
+  Outer Ring Road                      congestion=0.6804  delay=68.7s (est.)
+
+RECOMMENDATIONS (decision-support, not prescriptive):
+  1. Pre-clear high-congestion segments on emergency route.
+  2. Consider signal preemption at high-delay intersections.
+  3. Maintain emergency-priority corridors on primary roads.
+
+LIMITATIONS:
+  • Congestion weights are ML pseudo-labels.
+  • Signal delays are synthetic estimates.
+  • Real-time conditions not modeled.
+=================================================================

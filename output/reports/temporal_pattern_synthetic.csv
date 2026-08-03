@@ -1,0 +1,25 @@
+hour,estimated_congestion,period,data_source
+0,0.13999999999999999,Night,SYNTHETIC — heuristic multipliers
+1,0.105,Night,SYNTHETIC — heuristic multipliers
+2,0.0875,Night,SYNTHETIC — heuristic multipliers
+3,0.0875,Night,SYNTHETIC — heuristic multipliers
+4,0.12249999999999998,Night,SYNTHETIC — heuristic multipliers
+5,0.1925,Night,SYNTHETIC — heuristic multipliers
+6,0.27999999999999997,Evening,SYNTHETIC — heuristic multipliers
+7,0.42,Morning Peak,SYNTHETIC — heuristic multipliers
+8,0.5599999999999999,Morning Peak,SYNTHETIC — heuristic multipliers
+9,0.48999999999999994,Morning Peak,SYNTHETIC — heuristic multipliers
+10,0.385,Morning Peak,SYNTHETIC — heuristic multipliers
+11,0.3675,Midday,SYNTHETIC — heuristic multipliers
+12,0.40249999999999997,Midday,SYNTHETIC — heuristic multipliers
+13,0.385,Midday,SYNTHETIC — heuristic multipliers
+14,0.3675,Midday,SYNTHETIC — heuristic multipliers
+15,0.385,Midday,SYNTHETIC — heuristic multipliers
+16,0.45499999999999996,Midday,SYNTHETIC — heuristic multipliers
+17,0.595,Evening Peak,SYNTHETIC — heuristic multipliers
+18,0.5774999999999999,Evening Peak,SYNTHETIC — heuristic multipliers
+19,0.48999999999999994,Evening Peak,SYNTHETIC — heuristic multipliers
+20,0.385,Evening Peak,SYNTHETIC — heuristic multipliers
+21,0.315,Evening,SYNTHETIC — heuristic multipliers
+22,0.24499999999999997,Evening,SYNTHETIC — heuristic multipliers
+23,0.1925,Evening,SYNTHETIC — heuristic multipliers

@@ -1,0 +1,36 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Caches
+cache/
+.cache/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+
+# IDEs
+.vscode/
+.idea/
+
+# Large datasets, model binaries and generated output files
+data/*.csv
+data/*.kml
+output/*.csv
+output/graphs/
+output/maps/
+output/models/
+output/reports/*.png

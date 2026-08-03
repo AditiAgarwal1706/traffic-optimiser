@@ -1,0 +1,97 @@
+======================================================================
+CITY-WIDE AREA OPTIMIZATION REPORT — BANGALORE TRAFFIC
+======================================================================
+
+ZONE RANKING (by mean congestion score, highest first)
+----------------------------------------------------------------------
+  Zone             Edges  Length km  Mean Cong  High Cong%  Avg Delay
+----------------------------------------------------------------------
+  Central         22,282     1254.6     0.2681        0.0%      39.8s
+  South           53,495     3395.9     0.2587        0.1%      38.7s
+  East            66,095     4054.8     0.2532        0.1%      37.8s
+  South-West      67,528     4091.3     0.2441        0.0%      39.5s
+  North           65,212     4085.8     0.2410        0.0%      37.8s
+  West            69,419     4166.5     0.2290        0.0%      39.7s
+  Other           49,472     3190.8     0.2021        0.0%      37.3s
+
+INTERVENTION SIMULATION PER ZONE (⚠ HYPOTHETICAL)
+----------------------------------------------------------------------
+  Zone            Signal Opt  Enforcement  Viol Reduc                   Best
+  Other                6.42%        4.56%      22.79%   Violation Reduction
+  West                 6.22%        4.10%      20.48%   Violation Reduction
+  North                5.60%        3.90%      19.52%   Violation Reduction
+  South-West           5.87%        3.88%      19.41%   Violation Reduction
+  East                 5.37%        3.72%      18.60%   Violation Reduction
+  South                5.40%        3.68%      18.42%   Violation Reduction
+  Central              5.33%        3.51%      17.56%   Violation Reduction
+
+TOP CONGESTED ROADS PER ZONE
+----------------------------------------------------------------------
+
+  [Central]
+    1. Sankey Road Underpass                     cong=0.4197  len=0.01km  delay=59.1s
+    2. ['Sankey Road', 'Sankey Road Underpass']  cong=0.4192  len=0.65km  delay=55.9s
+    3. Hennur Main Road                          cong=0.4123  len=0.63km  delay=63.5s
+    4. Flyover                                   cong=0.4118  len=0.25km  delay=59.1s
+    5. Langford Road (Kadidal Manjappa Road)     cong=0.4086  len=0.04km  delay=61.3s
+
+  [East]
+    1. Varthur - Sarjapur Road                   cong=0.6212  len=5.38km  delay=65.3s
+    2. ['Outer Ring Road Underpass', 'Outer Rin  cong=0.5117  len=2.32km  delay=86.9s
+    3. Benniganahalli Flyover                    cong=0.4971  len=2.01km  delay=75.8s
+    4. ['Marathahalli Underpass', 'Outer Ring R  cong=0.4810  len=1.78km  delay=82.7s
+    5. Road                                      cong=0.4798  len=0.16km  delay=20.0s
+
+  [West]
+    1. ['Outer Ring Road', 'Sumanahalli Flyover  cong=0.5251  len=0.38km  delay=100.3s
+    2. ['Outer Ring Road', 'Nagarabhavi Circle   cong=0.5246  len=3.04km  delay=100.1s
+    3. Sumanahalli Flyover                       cong=0.5215  len=2.95km  delay=98.9s
+    4. Kuvempu Underpass                         cong=0.5178  len=1.80km  delay=97.4s
+    5. Outer Ring Road                           cong=0.5018  len=17.20km  delay=88.3s
+
+  [North]
+    1. ['Veerannapalya Flyover', 'Outer Ring Ro  cong=0.5303  len=1.05km  delay=94.4s
+    2. ['Outer Ring Road', 'Nagawara Flyover']   cong=0.5165  len=0.58km  delay=88.9s
+    3. Nagawara Flyover                          cong=0.5130  len=0.90km  delay=79.5s
+    4. ['Veerannapalya Flyover', 'Nagawara Flyo  cong=0.5104  len=0.94km  delay=86.5s
+    5. Outer Ring Road Underpass                 cong=0.5096  len=1.41km  delay=78.1s
+
+  [South]
+    1. Koramangala Road                          cong=0.6069  len=1.70km  delay=50.1s
+    2. ['Sarjapura Road', 'Sarjapur Road']       cong=0.6032  len=0.10km  delay=50.6s
+    3. Sarjapur Road                             cong=0.5904  len=3.61km  delay=46.0s
+    4. ['Ragigudda-Silk Board Integrated Flyove  cong=0.4309  len=3.80km  delay=51.4s
+    5. ['Silk Board Interchange', 'Ragigudda-Si  cong=0.4299  len=1.07km  delay=50.0s
+
+  [South-West]
+    1. ['100 Feet Road', 'Hemmigepura Main Road  cong=0.5331  len=0.06km  delay=72.6s
+    2. ['100 Feet Road', 'Underpass', 'Hemmigep  cong=0.5272  len=0.07km  delay=70.2s
+    3. Nagarabhavi Underpass                     cong=0.5154  len=2.03km  delay=96.4s
+    4. 100 Feet Road                             cong=0.5017  len=4.21km  delay=57.9s
+    5. ['Nayandhalli Flyover', 'Outer Ring Road  cong=0.4775  len=0.89km  delay=67.5s
+
+  [Other]
+    1. 100 Feet Road                             cong=0.4608  len=11.08km  delay=44.2s
+    2. Gottigere Tank Bund Road                  cong=0.4164  len=1.27km  delay=64.1s
+    3. Inner Peripheral Ring Road                cong=0.4159  len=2.00km  delay=65.2s
+    4. Hesarghatta Pipeline Road                 cong=0.4121  len=1.53km  delay=62.4s
+    5. Kengeri Flyover                           cong=0.4119  len=0.41km  delay=63.0s
+
+POLICY RECOMMENDATIONS (decision-support, not prescriptive)
+----------------------------------------------------------------------
+  1. IMMEDIATE: Deploy adaptive signal control in Central zone
+     (highest mean congestion: 0.268)
+  2. HIGH IMPACT: Violation Reduction in Other zone
+     (estimated 22.8% reduction)
+  3. Protect top-5 bottleneck intersections from construction disruption.
+  4. Increase enforcement presence on high-accident corridors.
+  5. Coordinate signal timing across zone boundaries (arterial progression).
+
+LIMITATIONS
+----------------------------------------------------------------------
+  • Congestion scores are ML pseudo-labels (weak supervision).
+  • Zone boundaries are geographic bounding boxes (approximate).
+  • Signal delays are synthetic topology estimates.
+  • Intervention reductions are model-based, not empirically validated.
+  • No real-time data — represents a static snapshot.
+======================================================================
